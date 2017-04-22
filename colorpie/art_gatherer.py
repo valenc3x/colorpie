@@ -1,11 +1,20 @@
 """ Art Gatherer class module """
+from collections import namedtuple
 from urllib import request
 
 import numpy as np
 from mtgsdk import Card
 
 import cv2
-from colorpie import CardList
+
+CardList = namedtuple('CardList', [
+    'card_id',
+    'name',
+    'set_code',
+    'set_name',
+    'color_identity',
+    'image'
+])
 
 
 class ArtGatherer:
