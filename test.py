@@ -1,10 +1,12 @@
-from pprint import pprint
+""" Test script to try general functionality """
+import random
+import cv2
 from colorpie import ArtGatherer
-from colorpie import ShapeDetector
 
 
-cards = ArtGatherer.get_card_list([40545, 413581, 420645, 380426, 417766])
-pprint(cards)
+# cards = ArtGatherer.get_card_list([40545, 413581, 420645, 380426, 417766])
+card_set = ArtGatherer.get_full_set('GPT')
 
-# cset = ArtGatherer.get_full_set('ORI')
-# pprint(cset)
+for card in random.sample(card_set, 20):
+    cv2.imshow(card.color_identity, card.artwork)
+cv2.waitKey(0)

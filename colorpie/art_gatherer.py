@@ -7,13 +7,14 @@ from mtgsdk import Card
 
 import cv2
 
-CardList = namedtuple('CardList', [
+MagicCard = namedtuple('MagicCard', [
     'card_id',
     'name',
     'set_code',
     'set_name',
     'color_identity',
-    'image'
+    'image',
+    'artwork'
 ])
 
 
@@ -43,26 +44,41 @@ class ArtGatherer:
         image = cv2.imdecode(image, cv2.IMREAD_COLOR)
         return image
 
+    @staticmethod
+    def _get_artwork(image):
+        """ Crops image to fit artwork only. Works for newer card borders"""
+        return image[35:173, 17:205]
+
     @classmethod
     def card_info(cls, card_id=40545):
         """ Returns a cv2 image object from a multiverse id of a specific card
         """
         card = Card.find(card_id)
-        return CardList(
+        identity = cls._color_to_identity(card.colors)
+        image = cls._url_to_image(card.image_url)
+        artwork = cls._get_artwork(image)
+        return MagicCard(
             card.multiverse_id,
             card.name,
             card.set,
             card.set_name,
-            cls._color_to_identity(card.colors),
-            cls._url_to_image(card.image_url)
+            identity,
+            image,
+            artwork
         )
 
     @classmethod
-    def get_full_set(cls, set_code='ORI'):
+    def get_full_set(cls, name=None, code=None):
         """ Returns a card list for a full set based on set codename
         """
-        fullset = Card.where(set=set_code).all()
         card_set = list()
+        if name is not None:
+            fullset = Card.where(set_name=name).all()
+        elif code is not None:
+            fullset = Card.where(set=code).all()
+        else:
+            return card_set
+
         for card in fullset:
             if 'Land' in card.types:
                 continue
