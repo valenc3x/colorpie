@@ -1,9 +1,10 @@
 """ Art Gatherer class module """
 from collections import namedtuple
+from datetime import datetime
 from urllib import request
 
 import numpy as np
-from mtgsdk import Card
+from mtgsdk import Card, Set
 
 import cv2
 
@@ -17,10 +18,13 @@ MagicCard = namedtuple('MagicCard', [
     'artwork'
 ])
 
+SCOURGE_RELEASE_DATE = datetime.strptime('2003-05-26', '%Y-%m-%d')
+
 
 class ArtGatherer:
     """ Wrapper class to fetch card information from mtgsdk
     """
+
     def __init__(self):
         pass
 
@@ -45,9 +49,20 @@ class ArtGatherer:
         return image
 
     @staticmethod
-    def _get_artwork(image):
+    def _get_artwork(card, image):
         """ Crops image to fit artwork only. Works for newer card borders"""
-        return image[35:173, 17:205]
+        # Scourge release date: 2003-05-26
+        card_set = Set.find(card.set)
+        set_release_date = datetime.strptime(card_set.release_date, '%Y-%m-%d')
+        if set_release_date > SCOURGE_RELEASE_DATE:
+            # new frame size and position
+            image = image[38:170, 20:202]
+        else:
+            # old frame size and position
+            image = image[32:166, 25:195]
+        ratio = 500.0 / image.shape[1]
+        dim = (500, int(image.shape[0] * ratio))
+        return cv2.resize(image, dim, interpolation=cv2.INTER_LINEAR)
 
     @classmethod
     def card_info(cls, card_id=40545):
@@ -56,7 +71,7 @@ class ArtGatherer:
         card = Card.find(card_id)
         identity = cls._color_to_identity(card.colors)
         image = cls._url_to_image(card.image_url)
-        artwork = cls._get_artwork(image)
+        artwork = cls._get_artwork(card, image)
         return MagicCard(
             card.multiverse_id,
             card.name,
@@ -68,16 +83,14 @@ class ArtGatherer:
         )
 
     @classmethod
-    def get_full_set(cls, name=None, code=None):
+    def get_full_set(cls, code=None):
         """ Returns a card list for a full set based on set codename
         """
         card_set = list()
-        if name is not None:
-            fullset = Card.where(set_name=name).all()
-        elif code is not None:
-            fullset = Card.where(set=code).all()
-        else:
+        if code is None:
             return card_set
+
+        fullset = Card.where(set=code).all()
 
         for card in fullset:
             if 'Land' in card.types:
