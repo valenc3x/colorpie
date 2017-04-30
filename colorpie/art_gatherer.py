@@ -18,8 +18,6 @@ MagicCard = namedtuple('MagicCard', [
     'artwork'
 ])
 
-SCOURGE_RELEASE_DATE = datetime.strptime('2003-05-26', '%Y-%m-%d')
-
 
 class ArtGatherer:
     """ Wrapper class to fetch card information from mtgsdk
@@ -50,20 +48,8 @@ class ArtGatherer:
 
     @staticmethod
     def _get_artwork(card, image):
-        """ Crops image to fit artwork only. Works for newer card borders"""
-        # Scourge release date: 2003-05-26
-        return image[40:170, 25:195]
-        card_set = Set.find(card.set)
-        set_release_date = datetime.strptime(card_set.release_date, '%Y-%m-%d')
-        if set_release_date > SCOURGE_RELEASE_DATE:
-            pass
-            # new frame size and position
-            #            132      182
-        else:
-            # old frame size and position
-            #             134       170
-            return image[32:166, 25:195]
-            #  130x170
+        """ Crops image to fit artwork only."""
+        return image[40:165, 25:195]
 
     @classmethod
     def card_info(cls, card_id=40545):

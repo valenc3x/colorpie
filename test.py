@@ -1,8 +1,15 @@
 """ Test script to try general functionality """
 import random
 import cv2
+import string
+from pprint import pprint
 from colorpie import ArtGatherer
 from colorpie import ImageProcessing
+from colorpie import ColorPie
+
+
+def random_generator(size=6, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for x in range(size))
 
 
 def show_artwork():
@@ -12,7 +19,7 @@ def show_artwork():
 
     # for card in random.sample(card_set, 20):
     for card in card_set:
-        cv2.imshow(card.name, card.artwork)
+        cv2.imshow(card.name, ImageProcessing.resize_to_width(card.artwork, 300))
     cv2.waitKey(0)
 
 
@@ -22,6 +29,14 @@ def normalize():
     print(normal)
 
 
+def color_test():
+    ds = [(random.randint(10, 99), random_generator(4)) for _ in range(100)]
+    cp = ColorPie(ds)
+    train_val_test = cp.build_sets()
+    pprint(train_val_test)
+
+
 if __name__ == '__main__':
     # show_artwork()
-    normalize()
+    # normalize()
+    color_test()
