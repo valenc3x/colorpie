@@ -1,15 +1,28 @@
 """ Image processing module """
 import cv2
+from sklearn.decomposition import RandomizedPCA
 
 
-class ShapeDetector:
-    # FIX: rename later may be necesary
-    """ Shape detector class to call image processing methods """
+class ImageProcessing:
+    """ Image processing methods """
     def __init__(self):
         pass
 
-    @classmethod
-    def detect(cls, contour):
+    @staticmethod
+    def resize_to_width(image, width):
+        """ Resize image based on set width and mantain aspect ratio """
+        ratio = float(width / image.shape[1])
+        dim = (width, int(image.shape[0] * ratio))
+        return cv2.resize(image, dim, interpolation=cv2.INTER_LINEAR)
+
+    @staticmethod
+    def normalize_image(image):
+        image = (image / 255).flatten()
+        return image
+        # pca = RandomizedPCA(n_components=2040)
+
+    @staticmethod
+    def detect_shape(contour):
         """ Detects the shape of an image section based on contours and
                 bounding rectangles of open CV
         """

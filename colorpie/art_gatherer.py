@@ -52,17 +52,18 @@ class ArtGatherer:
     def _get_artwork(card, image):
         """ Crops image to fit artwork only. Works for newer card borders"""
         # Scourge release date: 2003-05-26
+        return image[40:170, 25:195]
         card_set = Set.find(card.set)
         set_release_date = datetime.strptime(card_set.release_date, '%Y-%m-%d')
         if set_release_date > SCOURGE_RELEASE_DATE:
+            pass
             # new frame size and position
-            image = image[38:170, 20:202]
+            #            132      182
         else:
             # old frame size and position
-            image = image[32:166, 25:195]
-        ratio = 500.0 / image.shape[1]
-        dim = (500, int(image.shape[0] * ratio))
-        return cv2.resize(image, dim, interpolation=cv2.INTER_LINEAR)
+            #             134       170
+            return image[32:166, 25:195]
+            #  130x170
 
     @classmethod
     def card_info(cls, card_id=40545):
