@@ -36,23 +36,26 @@ class ColorPie:
         random.shuffle(self.dataset)
 
         train = self.dataset[0:train_s]
-        val = self.dataset[train_s:train_s+val_s]
+        val = self.dataset[train_s:train_s + val_s]
         test = self.dataset[train_s + val_s:]
 
         X_train = np.array([d[0] for d in train]) / 255
         n, w, h, d = X_train.shape
         X_train = X_train.reshape((n, d, h, w))
         y_train = np.array([COLORS.index(d[1]) for d in train])
+        self.i_train = [d[2] for d in train]
 
         X_val = np.array([d[0] for d in val]) / 255
         n, w, h, d = X_val.shape
         X_val = X_val.reshape((n, d, h, w))
         y_val = np.array([COLORS.index(d[1]) for d in val])
+        self.i_val = [d[2] for d in val]
 
         X_test = np.array([d[0] for d in test]) / 255
         n, w, h, d = X_test.shape
         X_test = X_test.reshape((n, d, h, w))
         y_test = np.array([COLORS.index(d[1]) for d in test])
+        self.i_test = [d[2] for d in test]
 
         return X_train, y_train, X_val, y_val, X_test, y_test
 

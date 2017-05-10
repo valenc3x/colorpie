@@ -5,8 +5,9 @@ from urllib import request
 
 import numpy as np
 from mtgsdk import Card, Set
-
 import cv2
+from colorpie.image_processing import ImageProcessing
+
 
 MagicCard = namedtuple('MagicCard', [
     'card_id',
@@ -49,7 +50,7 @@ class ArtGatherer:
     @staticmethod
     def _get_artwork(card, image):
         """ Crops image to fit artwork only."""
-        return image[40:165, 25:195]
+        return ImageProcessing.crop_image(image)
 
     @classmethod
     def _build_magic_card(cls, card):
@@ -86,15 +87,18 @@ class ArtGatherer:
         card_set = list()
         if code is None:
             return card_set
-        print('Searching for cards...')
+        print('[INFO]\tSearching for cards...')
         fullset = Card.where(set=code).all()
-        print('Building card set...')
+        print('[INFO]\tBuilding card set...')
         for card in fullset:
             # Skip lands. Too basic
             if 'Land' in card.types:
                 continue
             magic_card = cls._build_magic_card(card)
-            card_set.append((magic_card.artwork, magic_card.color_identity))
+            card_set.append((
+                magic_card.image,
+                magic_card.color_identity,
+                magic_card.artwork))
         return card_set
 
     @classmethod
