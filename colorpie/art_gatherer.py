@@ -52,10 +52,7 @@ class ArtGatherer:
         return image[40:165, 25:195]
 
     @classmethod
-    def card_info(cls, card_id=40545):
-        """ Returns a cv2 image object from a multiverse id of a specific card
-        """
-        card = Card.find(card_id)
+    def _build_magic_card(cls, card):
         identity = cls._color_to_identity(card.colors)
         image = cls._url_to_image(card.image_url)
         artwork = cls._get_artwork(card, image)
@@ -70,19 +67,34 @@ class ArtGatherer:
         )
 
     @classmethod
+    def get_card_info(cls, card_id=40545):
+        """ Returns a cv2 image object from a multiverse id of a specific card
+        """
+        card = Card.find(card_id)
+        return cls._build_magic_card(card)
+
+    @staticmethod
+    def print_cardset_names():
+        all_sets = Set.all()
+        for mtgset in all_sets:
+            print(mtgset.code, mtgset.name)
+
+    @classmethod
     def get_full_set(cls, code=None):
         """ Returns a card list for a full set based on set codename
         """
         card_set = list()
         if code is None:
             return card_set
-
+        print('Searching for cards...')
         fullset = Card.where(set=code).all()
-
+        print('Building card set...')
         for card in fullset:
+            # Skip lands. Too basic
             if 'Land' in card.types:
                 continue
-            card_set.append(cls.card_info(card.multiverse_id))
+            magic_card = cls._build_magic_card(card)
+            card_set.append((magic_card.artwork, magic_card.color_identity))
         return card_set
 
     @classmethod
@@ -91,5 +103,5 @@ class ArtGatherer:
         """
         cardlist = list()
         for cid in card_id_list:
-            cardlist.append(cls.card_info(cid))
+            cardlist.append(cls.get_card_info(cid))
         return cardlist
